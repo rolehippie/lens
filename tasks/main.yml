@@ -1,0 +1,28 @@
+# Standards: 1.2
+---
+- name: Download repo key
+  shell:
+    cmd: "curl -sSL https://downloads.k8slens.dev/keys/gpg | gpg --dearmor --output {{ lens_keyring }}"
+    creates: "{{ lens_keyring }}"
+  tags:
+    - lens
+
+- name: Add apt repository
+  apt_repository:
+    repo: deb [arch=amd64 signed-by={{ lens_keyring }}] https://downloads.k8slens.dev/apt/debian stable main
+    filename: lens
+    update_cache: True
+    state: present
+  tags:
+    - lens
+
+- name: Install required packages
+  loop:
+    - lens
+  package:
+    name: "{{ item }}"
+    state: present
+  tags:
+    - lens
+
+...
